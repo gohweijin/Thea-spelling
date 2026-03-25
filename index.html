@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Thea's Spell Stars ⭐</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #e0f4ff;
+    --deep: #1a3a5c;
+    --star: #ffd43b;
+    --coral: #ff6b6b;
+    --mint: #51cf66;
+    --lavender: #9775fa;
+    --orange: #ff922b;
+    --card: #ffffff;
+    --shadow: rgba(26,58,92,0.12);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(160deg, #dbeeff 0%, #e8f8ff 40%, #fef9e7 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  /* Stars background */
+  .stars-bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .star-dot {
+    position: absolute;
+    border-radius: 50%;
+    background: var(--star);
+    opacity: 0;
+    animation: twinkle var(--d, 3s) var(--delay, 0s) infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: 0.6; transform: scale(1); }
+  }
+
+  /* Header */
+  header {
+    position: relative; z-index: 10;
+    width: 100%;
+    background: linear-gradient(135deg, #1a3a5c 0%, #2d6a9f 100%);
+    padding: 22px 20px 18px;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(26,58,92,0.25);
+  }
+  header h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2rem;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  header h1 span { color: var(--star); }
+  header p { color: #a8d4f5; font-size: 0.85rem; margin-top: 3px; font-weight: 700; }
+
+  /* Score bar */
+  .score-bar {
+    position: relative; z-index: 10;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 16px;
+    width: 100%;
+  }
+  .star-counter {
+    background: var(--card);
+    border-radius: 50px;
+    padding: 8px 18px;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--deep);
+    box-shadow: 0 2px 12px var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .star-counter .emoji { font-size: 1.1rem; }
+
+
+  /* Pinyin display */
+  .pinyin-display {
+    display: none;
+    width: 100%;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .pinyin-text {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--lavender);
+    letter-spacing: 2px;
+    background: #f3f0ff;
+    border-radius: 12px;
+    padding: 8px 16px;
+    display: inline-block;
+  }
+  .pinyin-hint {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #aaa;
+    margin-top: 4px;
+  }
+
+  /* Handwriting input for ZH */
+  .spelling-input.zh-mode {
+    font-size: 2.4rem;
+    letter-spacing: 10px;
+    font-family: 'STKaiti', 'KaiTi', 'STFangsong', serif;
+    min-height: 220px;
+    height: 220px;
+    text-align: center;
+    ime-mode: active;
+    line-height: 2;
+    border-width: 3px;
+  }
+  .spelling-input.zh-sentence {
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    font-family: 'STKaiti', 'KaiTi', 'STFangsong', serif;
+    min-height: 240px;
+    height: 240px;
+    text-align: left;
+    padding: 16px;
+    line-height: 2;
+    border-width: 3px;
+  }
+
+  /* Screenshot preview */
+  .screenshot-section {
+    display: none;
+    width: 100%;
+    margin-top: 14px;
+    background: #f9f4ff;
+    border-radius: 16px;
+    padding: 14px;
+    border: 2px dashed #d0b8ff;
+    text-align: center;
+  }
+  .screenshot-section canvas {
+    width: 100%;
+    border-radius: 10px;
+    border: 2px solid #e0d0ff;
+    display: block;
+    margin-bottom: 10px;
+  }
+  .screenshot-section .ss-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--lavender);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+  .screenshot-btn {
+    background: var(--lavender);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .screenshot-btn:active { opacity: 0.85; }
+  .type-label-zh {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--lavender);
+    opacity: 0.8;
+    text-transform: none;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    text-align: left;
+  }
+
+  /* Ebook section */
+  .ebook-section {
+    width: 100%;
+    max-width: 520px;
+    padding: 0 16px 16px;
+    position: relative; z-index: 10;
+  }
+  .ebook-section h2 {
+    font-family: 'Baloo 2', cursive;
+    color: var(--deep);
+    font-size: 1rem;
+    margin-bottom: 10px;
+    text-align: center;
+    opacity: 0.8;
+  }
+  .ebook-row { display: flex; gap: 10px; }
+  .ebook-card {
+    flex: 1;
+    background: linear-gradient(135deg, #fff9db, #fff3e0);
+    border-radius: 16px;
+    padding: 14px 10px;
+    border: 2px solid #ffe08a;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    transition: transform 0.15s;
+    box-shadow: 0 2px 12px rgba(255,212,59,0.2);
+  }
+  .ebook-card:active { transform: scale(0.96); }
+  .ebook-card .eb-icon { font-size: 1.8rem; }
+  .ebook-card .eb-title { font-size: 0.75rem; font-weight: 800; color: var(--deep); line-height: 1.3; }
+  .ebook-card .eb-tag { font-size: 0.65rem; font-weight: 700; color: #e67700; background: #fff3bf; border-radius: 20px; padding: 2px 8px; }
+
+  /* Writing prompt section on end screen */
+  .writing-section {
+    width: 100%;
+    background: linear-gradient(135deg, #f0fff4, #e8f4ff);
+    border-radius: 20px;
+    padding: 18px 20px;
+    box-shadow: 0 3px 16px var(--shadow);
+    margin-bottom: 16px;
+    border: 2px solid #b2f2bb;
+    text-align: left;
+  }
+  .writing-section h3 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1rem;
+    color: var(--deep);
+    margin-bottom: 6px;
+  }
+  .writing-prompt-text {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #2f6b3e;
+    line-height: 1.5;
+    margin-bottom: 10px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px 12px;
+    border-left: 4px solid var(--mint);
+  }
+  .writing-input {
+    width: 100%;
+    min-height: 90px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--deep);
+    background: #fff;
+    border: 2px solid #b2f2bb;
+    border-radius: 12px;
+    padding: 10px 12px;
+    outline: none;
+    resize: none;
+  }
+  .writing-input:focus { border-color: var(--mint); }
+  .writing-tip { font-size: 0.72rem; color: #888; font-weight: 700; margin-top: 6px; }
+
+
+  /* Language tabs */
+  .lang-tabs {
+    position: relative; z-index: 10;
+    display: flex;
+    gap: 0;
+    background: rgba(255,255,255,0.5);
+    border-radius: 50px;
+    padding: 4px;
+    margin: 0 16px 4px;
+    box-shadow: 0 2px 12px var(--shadow);
+    width: calc(100% - 32px);
+    max-width: 488px;
+  }
+  .lang-tab {
+    flex: 1;
+    padding: 10px 8px;
+    border: none;
+    border-radius: 50px;
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .lang-tab.active {
+    background: var(--deep);
+    color: #fff;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+
+  /* Week selector */
+  #week-select-screen {
+    position: relative; z-index: 10;
+    width: 100%;
+    max-width: 520px;
+    padding: 10px 16px 30px;
+  }
+  #week-select-screen h2 {
+    font-family: 'Baloo 2', cursive;
+    color: var(--deep);
+    font-size: 1.3rem;
+    text-align: center;
+    margin-bottom: 14px;
+  }
+
+  .week-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    box-shadow: 0 3px 16px var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .week-card:active { transform: scale(0.97); }
+  .week-card .wk-icon {
+    font-size: 2.2rem;
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .week-card .wk-info { flex: 1; }
+  .week-card .wk-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; opacity: 0.55; margin-bottom: 2px; }
+  .week-card .wk-title { font-weight: 800; font-size: 1rem; color: var(--deep); }
+  .week-card .wk-count { font-size: 0.82rem; color: #888; font-weight: 700; }
+  .week-card .wk-arrow { font-size: 1.3rem; opacity: 0.4; }
+
+  .wk-2 { border-color: #ffd43b22; } .wk-2 .wk-icon { background: #fff9db; }
+  .wk-4 { border-color: #ff6b6b22; } .wk-4 .wk-icon { background: #fff0f0; }
+  .wk-6 { border-color: #9775fa22; } .wk-6 .wk-icon { background: #f3f0ff; }
+  .wk-8 { border-color: #51cf6622; } .wk-8 .wk-icon { background: #ebfbee; }
+
+  /* Practice screen */
+  #practice-screen {
+    display: none;
+    position: relative; z-index: 10;
+    width: 100%;
+    max-width: 520px;
+    padding: 10px 16px 40px;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .back-btn {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--deep);
+    opacity: 0.6;
+    cursor: pointer;
+    padding: 4px 0;
+    font-family: 'Nunito', sans-serif;
+    margin-bottom: 8px;
+  }
+
+  /* Progress */
+  .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  .progress-track {
+    flex: 1;
+    height: 10px;
+    background: #e0eaf5;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--lavender), var(--coral));
+    border-radius: 10px;
+    transition: width 0.4s ease;
+  }
+  .progress-label { font-weight: 800; font-size: 0.82rem; color: var(--deep); opacity: 0.7; white-space: nowrap; }
+
+  /* Word card */
+  .word-card {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 28px 24px;
+    width: 100%;
+    box-shadow: 0 4px 24px var(--shadow);
+    text-align: center;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .word-card::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffd43b33, transparent);
+  }
+
+  .word-number {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--lavender);
+    margin-bottom: 6px;
+  }
+
+  /* Hear it button */
+  .hear-btn {
+    background: linear-gradient(135deg, #2d6a9f, #1a3a5c);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 28px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 16px rgba(26,58,92,0.3);
+    transition: all 0.15s ease;
+    margin-bottom: 18px;
+  }
+  .hear-btn:active { transform: scale(0.95); }
+  .hear-btn.speaking {
+    background: linear-gradient(135deg, var(--lavender), #7048e8);
+    animation: pulse-btn 0.8s infinite;
+  }
+  @keyframes pulse-btn {
+    0%, 100% { box-shadow: 0 4px 16px rgba(151,117,250,0.4); }
+    50% { box-shadow: 0 4px 28px rgba(151,117,250,0.7); }
+  }
+
+  .hint-text {
+    font-size: 0.78rem;
+    color: #aaa;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  /* Type area */
+  .type-section { width: 100%; }
+  .type-label { font-size: 0.78rem; font-weight: 800; color: var(--deep); opacity: 0.5; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; text-align: left; }
+
+  .spelling-input {
+    width: 100%;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--deep);
+    background: #f4f8ff;
+    border: 3px solid #d0e4f7;
+    border-radius: 16px;
+    padding: 16px 18px;
+    outline: none;
+    text-align: center;
+    letter-spacing: 1px;
+    transition: border-color 0.2s;
+    /* Disable autocorrect / suggestions */
+    autocomplete: off;
+    autocorrect: off;
+    autocapitalize: off;
+    spellcheck: false;
+    -webkit-text-security: none;
+  }
+  .spelling-input:focus { border-color: var(--lavender); background: #faf5ff; }
+  .spelling-input.correct { border-color: var(--mint); background: #ebfbee; }
+  .spelling-input.wrong { border-color: var(--coral); background: #fff5f5; }
+
+  /* Voice record */
+  .voice-section {
+    background: #f9f4ff;
+    border-radius: 18px;
+    padding: 14px 18px;
+    margin-top: 12px;
+    width: 100%;
+    text-align: center;
+    border: 2px dashed #d0b8ff;
+  }
+  .voice-label { font-size: 0.75rem; font-weight: 800; color: var(--lavender); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+  .record-btn {
+    background: var(--card);
+    border: 3px solid var(--lavender);
+    border-radius: 50px;
+    padding: 10px 22px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--lavender);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.15s;
+  }
+  .record-btn:active { transform: scale(0.95); }
+  .record-btn.recording {
+    background: var(--coral);
+    border-color: var(--coral);
+    color: #fff;
+    animation: pulse-btn 0.7s infinite;
+  }
+  .play-btn {
+    background: var(--card);
+    border: 3px solid var(--mint);
+    border-radius: 50px;
+    padding: 10px 22px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--mint);
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    gap: 7px;
+    margin-left: 8px;
+    transition: all 0.15s;
+  }
+  .play-btn.visible { display: inline-flex; }
+  .play-btn:active { transform: scale(0.95); }
+  .voice-row { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; gap: 8px; }
+
+  /* Submit / result */
+  .submit-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--orange), var(--coral));
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    cursor: pointer;
+    margin-top: 16px;
+    box-shadow: 0 4px 18px rgba(255,107,107,0.35);
+    transition: all 0.15s;
+    letter-spacing: 0.5px;
+  }
+  .submit-btn:active { transform: scale(0.97); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .result-banner {
+    display: none;
+    width: 100%;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-top: 14px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 1rem;
+    animation: pop-in 0.3s ease;
+  }
+  @keyframes pop-in {
+    0% { transform: scale(0.85); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .result-banner.correct { background: #ebfbee; color: #2f9e44; border: 2px solid #b2f2bb; }
+  .result-banner.wrong { background: #fff5f5; color: #c92a2a; border: 2px solid #ffc9c9; }
+  .result-banner .correct-word { font-size: 1.25rem; font-weight: 900; margin-top: 5px; letter-spacing: 1px; }
+
+  .next-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--mint), #37b24d);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    cursor: pointer;
+    margin-top: 12px;
+    box-shadow: 0 4px 18px rgba(81,207,102,0.35);
+    transition: all 0.15s;
+    display: none;
+  }
+  .next-btn.visible { display: block; }
+  .next-btn:active { transform: scale(0.97); }
+
+  /* End screen */
+  #end-screen {
+    display: none;
+    position: relative; z-index: 10;
+    width: 100%;
+    max-width: 520px;
+    padding: 20px 16px 40px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .trophy { font-size: 5rem; animation: bounce 1s ease infinite alternate; }
+  @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-12px); } }
+  .end-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2rem;
+    color: var(--deep);
+    margin-top: 12px;
+  }
+  .end-score {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #555;
+    margin: 8px 0 24px;
+  }
+  .stars-row { font-size: 2rem; letter-spacing: 4px; margin-bottom: 24px; }
+  .review-list {
+    width: 100%;
+    background: var(--card);
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 3px 16px var(--shadow);
+    text-align: left;
+    margin-bottom: 20px;
+  }
+  .review-list h3 { font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: var(--coral); margin-bottom: 10px; }
+  .review-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 0.92rem;
+    font-weight: 700;
+  }
+  .review-item:last-child { border-bottom: none; }
+  .review-item .ri-word { color: var(--deep); }
+  .review-item .ri-badge { font-size: 1rem; }
+  .try-again-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--lavender), #7048e8);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(151,117,250,0.4);
+    margin-bottom: 12px;
+  }
+  .home-btn {
+    width: 100%;
+    background: var(--card);
+    color: var(--deep);
+    border: 3px solid #d0e4f7;
+    border-radius: 50px;
+    padding: 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    width: 10px; height: 10px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 999;
+    border-radius: 2px;
+    animation: confetti-fall 1.8s ease-in forwards;
+  }
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+
+  /* ===== Read & Learn screen ===== */
+  .ebook-card-big {
+    width: 100%;
+    background: linear-gradient(135deg, #fff9db, #ffefd0);
+    border-radius: 20px;
+    padding: 18px 20px;
+    border: 2px solid #ffe08a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    box-shadow: 0 3px 16px rgba(255,212,59,0.25);
+    transition: transform 0.15s;
+  }
+  .ebook-card-big:active { transform: scale(0.97); }
+  .eb-left { display: flex; align-items: center; gap: 14px; }
+  .eb-big-icon { font-size: 2rem; }
+  .eb-big-title { font-family: 'Baloo 2', cursive; font-size: 1.1rem; color: var(--deep); font-weight: 800; }
+  .eb-big-sub { font-size: 0.75rem; font-weight: 700; color: #e67700; }
+
+  .learn-tabs {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 14px;
+  }
+  .learn-tab {
+    flex: 1;
+    padding: 10px 6px;
+    border: 2px solid #d0e4f7;
+    border-radius: 50px;
+    background: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #888;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .learn-tab.active {
+    background: var(--deep);
+    border-color: var(--deep);
+    color: #fff;
+  }
+
+  .learn-panel { width: 100%; }
+
+  /* Phrase card */
+  .phrase-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 24px 22px;
+    box-shadow: 0 4px 24px var(--shadow);
+    margin-bottom: 14px;
+    border-top: 6px solid var(--star);
+  }
+  .phrase-category {
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--orange);
+    margin-bottom: 10px;
+  }
+  .phrase-main {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.3rem;
+    color: var(--deep);
+    margin-bottom: 14px;
+    line-height: 1.4;
+  }
+  .phrase-meaning-label, .phrase-use-label {
+    font-size: 0.68rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--lavender);
+    margin-bottom: 4px;
+  }
+  .phrase-meaning {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #444;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .phrase-use {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #2f9e44;
+    background: #ebfbee;
+    border-radius: 10px;
+    padding: 8px 12px;
+  }
+  .phrase-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .phrase-btn {
+    background: #fff;
+    border: 2px solid #d0e4f7;
+    border-radius: 50px;
+    padding: 9px 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: var(--deep);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .phrase-btn:active { background: #f0f8ff; }
+  .phrase-counter { font-size: 0.82rem; font-weight: 800; color: #aaa; }
+
+  /* Story card */
+  .story-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 22px 20px;
+    box-shadow: 0 4px 24px var(--shadow);
+    margin-bottom: 14px;
+    border-top: 6px solid var(--mint);
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .story-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.15rem;
+    color: var(--deep);
+    margin-bottom: 12px;
+  }
+  .story-body {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #333;
+    line-height: 1.7;
+  }
+  .story-body .highlight {
+    background: #fff3bf;
+    border-radius: 4px;
+    padding: 1px 4px;
+    font-weight: 900;
+    color: #e67700;
+  }
+
+  /* Quiz card */
+  .quiz-card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 22px 20px;
+    box-shadow: 0 4px 24px var(--shadow);
+    margin-bottom: 12px;
+    border-top: 6px solid var(--coral);
+  }
+  .quiz-q-label {
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--coral);
+    margin-bottom: 8px;
+  }
+  .quiz-question {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1rem;
+    color: var(--deep);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .quiz-options { display: flex; flex-direction: column; gap: 10px; }
+  .quiz-option {
+    background: #f4f8ff;
+    border: 2px solid #d0e4f7;
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--deep);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+  }
+  .quiz-option:active { transform: scale(0.98); }
+  .quiz-option.correct { background: #ebfbee; border-color: var(--mint); color: #2f9e44; }
+  .quiz-option.wrong { background: #fff5f5; border-color: var(--coral); color: #c92a2a; }
+  .quiz-result {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.92rem;
+    animation: pop-in 0.3s ease;
+  }
+  .quiz-result.correct { background: #ebfbee; color: #2f9e44; }
+  .quiz-result.wrong { background: #fff5f5; color: #c92a2a; }
+  .quiz-score-row { font-size: 0.85rem; font-weight: 800; color: var(--deep); text-align: center; }
+
+</style>
+</head>
+<body>
+
+<div class="stars-bg" id="starsBg"></div>
+
+<header>
+  <h1>⭐ Thea's <span>Spell Stars</span></h1>
+  <p id="headerSub">Maha Bodhi School · P4 2026 · British English</p>
+</header>
+
+<div class="score-bar">
+  <div class="star-counter"><span class="emoji">⭐</span> <span id="totalStars">0</span> stars earned</div>
+  <div class="star-counter"><span class="emoji">✅</span> <span id="totalCorrect">0</span> correct</div>
+</div>
+
+
+<div class="lang-tabs">
+  <button class="lang-tab active" id="langTabEN" onclick="switchLang('EN')">🇬🇧 English</button>
+  <button class="lang-tab" id="langTabZH" onclick="switchLang('ZH')">🇨🇳 华文</button>
+</div>
+
+<!-- Week selector -->
+<div id="week-select-screen">
+  <h2>Pick this week's test 📚</h2>
+
+  <div class="week-card wk-2" onclick="startWeek(0)">
+    <div class="wk-icon">🏅</div>
+    <div class="wk-info">
+      <div class="wk-label">Week 2 · 31 Mar 2026</div>
+      <div class="wk-title">The Paralympic Games</div>
+      <div class="wk-count">6 words + dictation</div>
+    </div>
+    <div class="wk-arrow">›</div>
+  </div>
+
+  <div class="week-card wk-4" onclick="startWeek(1)">
+    <div class="wk-icon">🔤</div>
+    <div class="wk-info">
+      <div class="wk-label">Week 4 · 14 Apr 2026</div>
+      <div class="wk-title">Commonly Misspelled Words</div>
+      <div class="wk-count">10 tricky words (rr & ss)</div>
+    </div>
+    <div class="wk-arrow">›</div>
+  </div>
+
+  <div class="week-card wk-6" onclick="startWeek(2)">
+    <div class="wk-icon">🌌</div>
+    <div class="wk-info">
+      <div class="wk-label">Week 6 · 28 Apr 2026</div>
+      <div class="wk-title">The World Beyond Us</div>
+      <div class="wk-count">10 words & phrases</div>
+    </div>
+    <div class="wk-arrow">›</div>
+  </div>
+
+  <div class="week-card wk-8" onclick="startWeek(3)">
+    <div class="wk-icon">🌻</div>
+    <div class="wk-info">
+      <div class="wk-label">Week 8 · 12 May 2026</div>
+      <div class="wk-title">Ruby's Sunflower</div>
+      <div class="wk-count">10 action phrases</div>
+    </div>
+    <div class="wk-arrow">›</div>
+  </div>
+</div>
+
+
+<!-- Read & Learn entry card -->
+<div class="ebook-section">
+  <div class="ebook-row">
+    <div class="ebook-card-big" onclick="showLearnScreen()">
+      <div class="eb-left">
+        <div class="eb-big-icon">✨</div>
+        <div>
+          <div class="eb-big-title">Read &amp; Learn</div>
+          <div class="eb-big-sub">Awesome Phrases · Model Stories · Mini Quiz</div>
+        </div>
+      </div>
+      <div class="wk-arrow" style="font-size:1.5rem;opacity:0.4">›</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ZH Week selector -->
+<div id="zh-week-select-screen" style="display:none; position:relative; z-index:10; width:100%; max-width:520px; padding:10px 16px 30px;">
+  <h2 style="font-family:'Baloo 2',cursive; color:var(--deep); font-size:1.2rem; text-align:center; margin-bottom:14px;">选择这周的听写 📚</h2>
+
+  <div class="week-card" style="border-color:#f59f0033;" onclick="startZHWeek(0)">
+    <div class="wk-icon" style="background:#fff8e1;">💉</div>
+    <div class="wk-info">
+      <div class="wk-label">听写五 · 1 Apr 2026</div>
+      <div class="wk-title">《我不怕打针》</div>
+      <div class="wk-count">14词 + 默写句</div>
+    </div>
+    <div class="wk-arrow">›</div>
+  </div>
+
+  <div class="week-card" style="border-color:#51cf6633;" onclick="startZHWeek(1)">
+    <div class="wk-icon" style="background:#ebfbee;">🥋</div>
+    <div class="wk-info">
+      <div class="wk-label">听写六</div>
+      <div class="wk-title">《我要参加什么活动呢》</div>
+      <div class="wk-count">14词 + 默写句</div>
+    </div>
+    <div class="wk-arrow">›</div>
+  </div>
+
+  <div class="week-card" style="border-color:#9775fa33;" onclick="startZHWeek(2)">
+    <div class="wk-icon" style="background:#f3f0ff;">😳</div>
+    <div class="wk-info">
+      <div class="wk-label">听写七</div>
+      <div class="wk-title">《他的脸红了》</div>
+      <div class="wk-count">12词 + 默写句</div>
+    </div>
+    <div class="wk-arrow">›</div>
+  </div>
+
+  <div class="week-card" style="border-color:#ff6b6b33;" onclick="startZHWeek(3)">
+    <div class="wk-icon" style="background:#fff5f5;">🚗</div>
+    <div class="wk-info">
+      <div class="wk-label">听写八</div>
+      <div class="wk-title">《马路如虎口》</div>
+      <div class="wk-count">12词 + 2默写句</div>
+    </div>
+    <div class="wk-arrow">›</div>
+  </div>
+
+  <div class="week-card" style="border-color:#74c0fc33;" onclick="startZHWeek(4)">
+    <div class="wk-icon" style="background:#e8f4ff;">❤️</div>
+    <div class="wk-info">
+      <div class="wk-label">听写九</div>
+      <div class="wk-title">《爱心无障碍》</div>
+      <div class="wk-count">14词 + 默写句</div>
+    </div>
+    <div class="wk-arrow">›</div>
+  </div>
+</div>
+
+<!-- Practice screen -->
+<div id="practice-screen">
+  <button class="back-btn" onclick="goHome()">← Choose another test</button>
+
+  <div class="progress-row">
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">1 / 6</div>
+  </div>
+
+  <div class="word-card">
+    <div class="word-number" id="wordNumber">Word 1 of 6</div>
+    <button class="hear-btn" id="hearBtn" onclick="speakWord()">
+      <span>🔊</span> <span id="hearBtnText">Hear the word</span>
+    </button>
+    <div class="hint-text">Tap to hear it! You can tap as many times as you like.</div>
+
+    <div class="pinyin-display" id="pinyinDisplay">
+      <div class="pinyin-text" id="pinyinText"></div>
+      <div class="pinyin-hint">汉语拼音</div>
+    </div>
+
+    <div class="type-section">
+      <div class="type-label" id="typeLabel">Type your spelling below</div>
+      <input
+        class="spelling-input"
+        id="spellingInput"
+        type="text"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        inputmode="text"
+        placeholder="Type here…"
+      />
+    </div>
+
+    <div class="voice-section">
+      <div class="voice-label">🎙 Record yourself saying it</div>
+      <div class="voice-row">
+        <button class="record-btn" id="recordBtn" onclick="toggleRecord()">
+          <span id="recordIcon">⏺</span> <span id="recordText">Record</span>
+        </button>
+        <button class="play-btn" id="playBtn" onclick="playRecording()">
+          ▶ Play back
+        </button>
+      </div>
+    </div>
+
+    <!-- Screenshot of handwriting (ZH only) -->
+    <div class="screenshot-section" id="screenshotSection">
+      <div class="ss-label">📸 Thea's handwriting</div>
+      <canvas id="hwCanvas"></canvas>
+      <button class="screenshot-btn" onclick="captureHandwriting()">📷 Capture handwriting</button>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" onclick="checkAnswer()">Check my spelling ✏️</button>
+
+    <div class="result-banner" id="resultBanner">
+      <div id="resultEmoji"></div>
+      <div id="resultMsg"></div>
+      <div class="correct-word" id="correctWordDisplay"></div>
+    </div>
+
+    <div class="writing-section" id="writingSection" style="display:none; margin-top:14px;">
+      <h3>✏️ Now write a sentence!</h3>
+      <div class="writing-prompt-text" id="writingPrompt"></div>
+      <textarea class="writing-input" id="writingArea" placeholder="Write your sentence here… tap to type!" rows="3"></textarea>
+      <div class="writing-tip">💡 Use one of this week's words in your sentence!</div>
+    </div>
+    <button class="next-btn" id="nextBtn" onclick="nextWord()">Next word →</button>
+  </div>
+</div>
+
+<!-- End screen -->
+<div id="end-screen">
+  <div class="trophy" id="endTrophy">🏆</div>
+  <div class="end-title" id="endTitle">Amazing work, Thea!</div>
+  <div class="end-score" id="endScore">You got 8 out of 10!</div>
+  <div class="stars-row" id="endStars"></div>
+  <div class="review-list" id="reviewList"></div>
+  <button class="try-again-btn" onclick="retryWeek()">Try again 🔄</button>
+  <button class="home-btn" onclick="goHome()">← Choose another test</button>
+</div>
+
+<script>
+const WEEKS = [
+  {
+    name: "The Paralympic Games",
+    words: [
+      "opponents",
+      "visually impaired athletes",
+      "participate",
+      "face challenges",
+      "confident",
+      "specially designed"
+    ],
+    writingPrompt: "Write 1–2 sentences about a sport you like. Try to use words like 'opponents', 'participate', or 'confident'. Example: The two opponents were both confident as they prepared to participate in the race."
+  },
+  {
+    name: "Commonly Misspelled Words",
+    words: [
+      "diarrhoea",
+      "interrupt",
+      "tomorrow",
+      "occurred",
+      "embarrassment",
+      "quarrelling",
+      "necessary",
+      "possession",
+      "assistance",
+      "dessert"
+    ],
+    writingPrompt: "Write 1–2 sentences using at least TWO of this week's tricky words. Example: It was necessary to ask for assistance after the embarrassing incident occurred during the quarrelling match."
+  },
+  {
+    name: "The World Beyond Us",
+    words: [
+      "asteroids",
+      "ellipse",
+      "solar eclipse",
+      "the phases of the moon",
+      "continuously orbit",
+      "reflects light from the Sun",
+      "casts a shadow on the surface of Earth",
+      "appreciate natural phenomena",
+      "several unique features",
+      "special telescope"
+    ],
+    writingPrompt: "Imagine you are an astronaut looking out of your spaceship. Write 1–2 sentences describing what you see. Try to use words like 'asteroids', 'solar eclipse', or 'continuously orbit'."
+  },
+  {
+    name: "Ruby's Sunflower",
+    words: [
+      "made her sunflower grow and grow",
+      "Ruby's hand slipped",
+      "flew straight at the sunflower",
+      "stared at the broken sunflower",
+      "the stem of the sunflower snapped",
+      "fetched the ladder",
+      "looked as good as new",
+      "was practising basketball",
+      "some special plant food",
+      "everything went very quiet"
+    ],
+    writingPrompt: "Continue Ruby's story! Write 1–2 sentences about what Ruby did after she fixed her sunflower. Try to use some of this week's action phrases like 'fetched the ladder' or 'everything went very quiet'."
+  }
+];
+
+let currentWeekIdx = 0;
+let currentWordIdx = 0;
+let results = [];
+let totalStars = 0;
+let totalCorrect = 0;
+let mediaRecorder = null;
+let audioChunks = [];
+let recordedBlob = null;
+let audioURL = null;
+let isSpeaking = false;
+
+// ——— Stars background ———
+function makeStars() {
+  const bg = document.getElementById('starsBg');
+  for (let i = 0; i < 25; i++) {
+    const s = document.createElement('div');
+    s.className = 'star-dot';
+    const size = Math.random() * 5 + 3;
+    s.style.cssText = `
+      width:${size}px;height:${size}px;
+      left:${Math.random()*100}%;
+      top:${Math.random()*100}%;
+      --d:${2+Math.random()*4}s;
+      --delay:${Math.random()*4}s;
+    `;
+    bg.appendChild(s);
+  }
+}
+makeStars();
+
+// ——— TTS (British English) ———
+function speakWord() {
+  if (isZHMode) { speakZHWord(); return; }
+  const week = WEEKS[currentWeekIdx];
+  const word = week.words[currentWordIdx];
+  if (isSpeaking) return;
+
+  const utterance = new SpeechSynthesisUtterance(word);
+  utterance.lang = 'en-GB';
+  utterance.rate = 0.6;
+  utterance.pitch = 1.05;
+
+  // Try to find a British English voice
+  const voices = window.speechSynthesis.getVoices();
+  const gbVoice = voices.find(v => v.lang === 'en-GB') ||
+                  voices.find(v => v.lang.startsWith('en-GB')) ||
+                  voices.find(v => v.lang.startsWith('en'));
+  if (gbVoice) utterance.voice = gbVoice;
+
+  const btn = document.getElementById('hearBtn');
+  const btnText = document.getElementById('hearBtnText');
+  isSpeaking = true;
+  btn.classList.add('speaking');
+  btnText.textContent = 'Listening…';
+
+  utterance.onend = () => {
+    isSpeaking = false;
+    btn.classList.remove('speaking');
+    btnText.textContent = 'Hear it again';
+  };
+  utterance.onerror = () => {
+    isSpeaking = false;
+    btn.classList.remove('speaking');
+    btnText.textContent = 'Hear the word';
+  };
+
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utterance);
+}
+
+// Preload voices
+window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+
+// ——— Voice recording ———
+async function toggleRecord() {
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder.stop();
+    return;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      recordedBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      audioURL = URL.createObjectURL(recordedBlob);
+      const playBtn = document.getElementById('playBtn');
+      playBtn.classList.add('visible');
+      stream.getTracks().forEach(t => t.stop());
+
+      const btn = document.getElementById('recordBtn');
+      document.getElementById('recordIcon').textContent = '⏺';
+      document.getElementById('recordText').textContent = 'Record again';
+      btn.classList.remove('recording');
+    };
+
+    mediaRecorder.start();
+    const btn = document.getElementById('recordBtn');
+    btn.classList.add('recording');
+    document.getElementById('recordIcon').textContent = '⏹';
+    document.getElementById('recordText').textContent = 'Stop';
+  } catch(e) {
+    alert('Microphone not available. Please allow microphone access to record yourself.');
+  }
+}
+
+function playRecording() {
+  if (!audioURL) return;
+  const audio = new Audio(audioURL);
+  audio.play();
+}
+
+// ——— Week / word flow ———
+function startWeek(idx) {
+  currentWeekIdx = idx;
+  currentWordIdx = 0;
+  results = [];
+  recordedBlob = null;
+  audioURL = null;
+
+  document.getElementById('week-select-screen').style.display = 'none';
+  document.getElementById('end-screen').style.display = 'none';
+  const ps = document.getElementById('practice-screen');
+  ps.style.display = 'flex';
+
+  loadWord();
+}
+
+function loadWord() {
+  const week = WEEKS[currentWeekIdx];
+  const total = week.words.length;
+  const idx = currentWordIdx;
+
+  // Reset state
+  const input = document.getElementById('spellingInput');
+  input.value = '';
+  input.className = 'spelling-input';
+  input.disabled = false;
+  input.removeAttribute('style');
+
+  document.getElementById('resultBanner').style.display = 'none';
+  document.getElementById('writingSection').style.display = 'none';
+  input.style.fontSize = '';
+  input.style.letterSpacing = '';
+  input.placeholder = 'Type here…';
+  input.className = 'spelling-input';
+  input.removeAttribute('lang');
+  input.setAttribute('inputmode', 'text');
+  // Hide pinyin for EN mode
+  var pd = document.getElementById('pinyinDisplay');
+  if (pd) pd.style.display = 'none';
+  showScreenshotSection(false);
+  var tl = document.getElementById('typeLabel');
+  if (tl) { tl.textContent = 'Type your spelling below'; tl.className = 'type-label'; }
+  document.getElementById('nextBtn').classList.remove('visible');
+  document.getElementById('submitBtn').style.display = '';
+  document.getElementById('submitBtn').disabled = false;
+
+  const hearBtn = document.getElementById('hearBtn');
+  hearBtn.classList.remove('speaking');
+  document.getElementById('hearBtnText').textContent = 'Hear the word';
+  isSpeaking = false;
+
+  // Reset recording
+  recordedBlob = null;
+  audioURL = null;
+  document.getElementById('playBtn').classList.remove('visible');
+  const recBtn = document.getElementById('recordBtn');
+  recBtn.classList.remove('recording');
+  document.getElementById('recordIcon').textContent = '⏺';
+  document.getElementById('recordText').textContent = 'Record';
+
+  // Update progress
+  const pct = (idx / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${idx+1} / ${total}`;
+  document.getElementById('wordNumber').textContent = `Word ${idx+1} of ${total}`;
+
+  // Auto-speak after short delay
+  setTimeout(() => speakWord(), 500);
+
+  input.focus();
+}
+
+function checkAnswer() {
+  if (isZHMode) { checkZHAnswer(); return; }
+  const week = WEEKS[currentWeekIdx];
+  const correct = week.words[currentWordIdx].toLowerCase().trim();
+  const input = document.getElementById('spellingInput');
+  const typed = input.value.toLowerCase().trim();
+
+  if (!typed) { input.focus(); return; }
+
+  const isCorrect = typed === correct;
+  results.push({ word: week.words[currentWordIdx], typed, isCorrect });
+
+  if (isCorrect) { totalStars++; totalCorrect++; }
+
+  // Update global counters
+  document.getElementById('totalStars').textContent = totalStars;
+  document.getElementById('totalCorrect').textContent = totalCorrect;
+
+  // Feedback
+  input.className = 'spelling-input ' + (isCorrect ? 'correct' : 'wrong');
+  input.disabled = true;
+
+  const banner = document.getElementById('resultBanner');
+  banner.className = 'result-banner ' + (isCorrect ? 'correct' : 'wrong');
+  banner.style.display = 'block';
+
+  document.getElementById('resultEmoji').textContent = isCorrect ? '🌟 Brilliant!' : '💪 Almost!';
+  document.getElementById('resultMsg').textContent = isCorrect
+    ? 'You spelled it perfectly!'
+    : 'The correct spelling is:';
+  document.getElementById('correctWordDisplay').textContent = isCorrect ? '' : week.words[currentWordIdx];
+
+  document.getElementById('submitBtn').style.display = 'none';
+
+  const nextBtn = document.getElementById('nextBtn');
+  const isLastWord = currentWordIdx + 1 >= week.words.length;
+  nextBtn.textContent = isLastWord ? 'See my results 🏆' : 'Next word →';
+  nextBtn.classList.add('visible');
+
+  // Show writing prompt only on the last word
+  if (isLastWord) {
+    document.getElementById('writingPrompt').textContent = week.writingPrompt;
+    document.getElementById('writingArea').value = '';
+    document.getElementById('writingSection').style.display = 'block';
+  }
+
+  if (isCorrect) confetti();
+}
+
+function nextWord() {
+  if (isZHMode) { nextZHWord(); return; }
+  const week = WEEKS[currentWeekIdx];
+  if (currentWordIdx + 1 < week.words.length) {
+    currentWordIdx++;
+    loadWord();
+  } else {
+    showEnd();
+  }
+}
+
+function showEnd() {
+  document.getElementById('practice-screen').style.display = 'none';
+  const end = document.getElementById('end-screen');
+  end.style.display = 'flex';
+
+  const correct = results.filter(r => r.isCorrect).length;
+  const total = results.length;
+  const pct = correct / total;
+
+  let trophy = '🏅', title = 'Good effort, Thea!';
+  if (pct === 1) { trophy = '🏆'; title = 'PERFECT SCORE! Amazing, Thea! 🎉'; }
+  else if (pct >= 0.8) { trophy = '🥇'; title = 'Brilliant work, Thea!'; }
+  else if (pct >= 0.6) { trophy = '🥈'; title = 'Great job, Thea!'; }
+
+  document.getElementById('endTrophy').textContent = trophy;
+  document.getElementById('endTitle').textContent = title;
+  document.getElementById('endScore').textContent = `You got ${correct} out of ${total} correct!`;
+
+  const starsStr = '⭐'.repeat(correct) + (pct < 1 ? '☆'.repeat(total - correct) : '');
+  document.getElementById('endStars').textContent = starsStr;
+
+  // Review wrong ones
+  const wrong = results.filter(r => !r.isCorrect);
+  const reviewList = document.getElementById('reviewList');
+  if (wrong.length === 0) {
+    reviewList.style.display = 'none';
+  } else {
+    reviewList.style.display = 'block';
+    reviewList.innerHTML = '<h3>🔴 Practise these again</h3>' +
+      wrong.map(r => `
+        <div class="review-item">
+          <span class="ri-badge">❌</span>
+          <div>
+            <div class="ri-word">${r.word}</div>
+            <div style="font-size:0.75rem;color:#aaa;font-weight:700;">You typed: ${r.typed}</div>
+          </div>
+        </div>
+      `).join('');
+  }
+
+  if (pct === 1) confetti(60);
+}
+
+function retryWeek() {
+  if (isZHMode) { startZHWeek(currentZHWeekIdx); } else { startWeek(currentWeekIdx); }
+}
+
+function goHome() {
+  window.speechSynthesis.cancel();
+  isZHMode = false;
+  document.getElementById('practice-screen').style.display = 'none';
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('learn-screen').style.display = 'none';
+  if (currentLang === 'ZH') {
+    document.getElementById('zh-week-select-screen').style.display = 'block';
+    document.getElementById('week-select-screen').style.display = 'none';
+  } else {
+    document.getElementById('week-select-screen').style.display = 'block';
+    document.getElementById('zh-week-select-screen').style.display = 'none';
+  }
+}
+
+// ——— Confetti ———
+function confetti(count = 30) {
+  const colors = ['#ffd43b','#ff6b6b','#51cf66','#9775fa','#ff922b','#74c0fc'];
+  for (let i = 0; i < count; i++) {
+    setTimeout(() => {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.cssText = `
+        left: ${Math.random()*100}vw;
+        top: -20px;
+        background: ${colors[Math.floor(Math.random()*colors.length)]};
+        width: ${6+Math.random()*8}px;
+        height: ${6+Math.random()*8}px;
+        animation-duration: ${1.2+Math.random()*1}s;
+        animation-delay: ${Math.random()*0.3}s;
+      `;
+      document.body.appendChild(piece);
+      setTimeout(() => piece.remove(), 2500);
+    }, i * 40);
+  }
+}
+
+// Enter key submits
+document.getElementById('spellingInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkAnswer();
+});
+
+// ===== READ & LEARN =====
+
+const PHRASES = [
+  { category: "😠 ANGER", phrase: "His blood boiled with fury.", meaning: "He was extremely angry — like his blood was so hot it was boiling inside him.", use: "A character loses their temper completely." },
+  { category: "😠 ANGER", phrase: "She shot him a venomous glare.", meaning: "She stared at him with a look full of hatred, like a snake about to strike.", use: "A character is furious but has not said anything yet." },
+  { category: "😠 ANGER", phrase: "He clenched his fists until his knuckles turned white.", meaning: "He squeezed his hands so tightly in anger that all the colour drained from his knuckles.", use: "Showing anger through body language, not words." },
+  { category: "😢 SADNESS", phrase: "Tears blurred her vision.", meaning: "She was crying so much that everything looked watery and unclear.", use: "A character is trying not to cry but cannot help it." },
+  { category: "😢 SADNESS", phrase: "A wave of grief washed over him.", meaning: "A sudden, powerful feeling of sadness hit him all at once, like a wave in the sea.", use: "A character receives very bad news." },
+  { category: "😢 SADNESS", phrase: "Her heart sank like a stone.", meaning: "She felt a sudden heavy feeling of disappointment or sadness drop inside her.", use: "A character finds out something disappointing." },
+  { category: "😨 FEAR", phrase: "His heart hammered against his ribs.", meaning: "His heart was beating so fast and hard from fear that he could feel it thumping in his chest.", use: "A character is terrified and can feel it in their body." },
+  { category: "😨 FEAR", phrase: "Her mouth went dry.", meaning: "She was so frightened that all the moisture left her mouth — a sign of extreme nervousness.", use: "Before a scary moment or a big challenge." },
+  { category: "😨 FEAR", phrase: "A chill ran down his spine.", meaning: "A cold, tingling feeling crept down his back — a sign that something scared or disturbed him.", use: "When something creepy or dangerous appears." },
+  { category: "😄 JOY", phrase: "She beamed from ear to ear.", meaning: "She smiled the biggest, widest smile possible — full of happiness.", use: "A character receives fantastic news or achieves something great." },
+  { category: "😄 JOY", phrase: "He leapt for joy.", meaning: "He was so happy that he literally jumped up because he could not contain his excitement.", use: "A moment of great celebration or victory." },
+  { category: "😄 JOY", phrase: "Warmth flooded through her.", meaning: "A comfortable, happy feeling spread through her whole body, like sunshine from inside.", use: "A quiet, gentle moment of happiness." },
+  { category: "😮 SURPRISE", phrase: "His jaw dropped.", meaning: "He was so shocked that his mouth fell open in amazement.", use: "A character sees or hears something totally unexpected." },
+  { category: "😮 SURPRISE", phrase: "She froze in her tracks.", meaning: "She stopped moving completely, shocked into stillness by what she saw or heard.", use: "A sudden, shocking discovery." },
+  { category: "😤 DETERMINATION", phrase: "She gritted her teeth and pressed on.", meaning: "Even though it was hard, she clenched her jaw and kept going — refusing to give up.", use: "A character pushes through difficulty." },
+  { category: "😤 DETERMINATION", phrase: "He mustered every ounce of courage.", meaning: "He gathered all the bravery he had inside him, even though he was scared.", use: "Before a frightening but important moment." },
+  { category: "😳 EMBARRASSMENT", phrase: "Her cheeks flushed scarlet.", meaning: "Her face turned bright red from embarrassment — like it was on fire.", use: "A character is caught doing something awkward or silly." },
+  { category: "😳 EMBARRASSMENT", phrase: "He wished the ground would swallow him up.", meaning: "He felt so embarrassed that he wanted to disappear completely.", use: "After a very embarrassing moment in front of others." },
+  { category: "🤩 EXCITEMENT", phrase: "Butterflies danced in her stomach.", meaning: "She had a fluttery, nervous-excited feeling in her tummy — like butterflies were flying around inside.", use: "Before something thrilling — a performance, competition, or surprise." },
+  { category: "🤩 EXCITEMENT", phrase: "His eyes lit up.", meaning: "His eyes suddenly became bright and alive with happiness or excitement.", use: "When a character hears something wonderful or spots something they love." }
+];
+
+const STORIES = [
+  {
+    title: "🏅 The Big Race",
+    body: "Maya <span class='highlight'>gritted her teeth and pressed on</span>. The finishing line was just ahead, but her legs felt like lead.\n\nBehind her, she could hear the thundering footsteps of her closest rival. <span class='highlight'>Her heart hammered against her ribs</span>.\n\nShe whispered to herself: do not stop. She <span class='highlight'>mustered every ounce of courage</span> she had left.\n\nThen she crossed the line. First place.\n\n<span class='highlight'>She beamed from ear to ear</span>, her arms thrown wide. The crowd erupted. <span class='highlight'>She leapt for joy</span>.\n\nShe had done it."
+  },
+  {
+    title: "🌻 The Broken Vase",
+    body: "Tom stared at the shattered pieces on the floor. Mum's favourite vase. Gone.\n\n<span class='highlight'>His jaw dropped</span>. He had not meant to knock it. He had just been reaching for his football when his elbow caught it.\n\n<span class='highlight'>He wished the ground would swallow him up</span>.\n\nHe heard the front door open. Mum was home.\n\n<span class='highlight'>His mouth went dry</span>. <span class='highlight'>A chill ran down his spine</span>.\n\nHe took a deep breath. He would tell the truth. <span class='highlight'>He mustered every ounce of courage</span> and stepped into the hall.\n\nMum, he said quietly. I need to tell you something."
+  },
+  {
+    title: "🌌 The Strange Light",
+    body: "It was past midnight when Priya saw the glow outside her window.\n\nShe <span class='highlight'>froze in her tracks</span>. A pale blue light was floating above the garden, humming softly.\n\n<span class='highlight'>A wave of fear washed over her</span>. She pressed herself against the wall, barely breathing.\n\nThen the light moved — and Priya saw it was not something scary at all. It was a lantern, drifting up from the neighbour's garden. A birthday wish lantern, floating into the night sky.\n\n<span class='highlight'>Warmth flooded through her</span>.\n\n<span class='highlight'>She beamed from ear to ear</span> and watched until the little light disappeared into the stars."
+  }
+];
+
+const QUIZ = [
+  { q: "Tom knocked over his mum's vase by accident. He felt so ashamed he wanted to disappear. Which phrase fits?", options: ["His blood boiled with fury.", "He wished the ground would swallow him up.", "He leapt for joy.", "Her mouth went dry."], answer: 1 },
+  { q: "Maya was about to run the biggest race of her life. Her tummy felt fluttery and nervous. Which phrase fits?", options: ["She shot him a venomous glare.", "Butterflies danced in her stomach.", "Tears blurred her vision.", "She beamed from ear to ear."], answer: 1 },
+  { q: "Priya heard a strange noise in the dark. A cold, creepy feeling crept down her back. Which phrase fits?", options: ["A wave of grief washed over him.", "She beamed from ear to ear.", "A chill ran down his spine.", "He clenched his fists."], answer: 2 },
+  { q: "Sam just found out he won first prize in the art competition. He was SO happy. Which phrase fits?", options: ["Her heart sank like a stone.", "He leapt for joy.", "He wished the ground would swallow him up.", "She froze in her tracks."], answer: 1 },
+  { q: "Lily tried very hard not to show she was angry — but her face went bright red. Which phrase fits?", options: ["Her cheeks flushed scarlet.", "Warmth flooded through her.", "His jaw dropped.", "She gritted her teeth."], answer: 0 },
+  { q: "Dad came home with a puppy as a surprise. The children could not believe their eyes. Which phrase fits?", options: ["A wave of grief washed over him.", "Her mouth went dry.", "His jaw dropped.", "A chill ran down his spine."], answer: 2 },
+  { q: "Despite being exhausted, Zara refused to give up on the climb. She kept going no matter what. Which phrase fits?", options: ["She beamed from ear to ear.", "She gritted her teeth and pressed on.", "Tears blurred her vision.", "His blood boiled with fury."], answer: 1 },
+  { q: "Grandma had passed away. A sudden heavy sadness hit Tom all at once. Which phrase fits?", options: ["His eyes lit up.", "Butterflies danced in her stomach.", "A wave of grief washed over him.", "He leapt for joy."], answer: 2 }
+];
+
+let currentPhrase = 0;
+let currentStory = 0;
+let currentQuiz = 0;
+let quizScore = 0;
+let quizAnswered = false;
+
+function showLearnScreen() {
+  document.getElementById('week-select-screen').style.display = 'none';
+  document.getElementById('learn-screen').style.display = 'flex';
+  loadPhrase();
+  loadStory();
+  loadQuiz();
+}
+
+function switchLearnTab(tab) {
+  ['phrases','stories','quiz'].forEach(function(t) {
+    document.getElementById('learn-' + t).style.display = t === tab ? 'block' : 'none';
+    document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+  });
+}
+
+function loadPhrase() {
+  var p = PHRASES[currentPhrase];
+  document.getElementById('phraseCategory').textContent = p.category;
+  document.getElementById('phraseMain').textContent = p.phrase;
+  document.getElementById('phraseMeaning').textContent = p.meaning;
+  document.getElementById('phraseUse').textContent = p.use;
+  document.getElementById('phraseCounter').textContent = (currentPhrase + 1) + ' / ' + PHRASES.length;
+}
+function nextPhrase() { currentPhrase = (currentPhrase + 1) % PHRASES.length; loadPhrase(); }
+function prevPhrase() { currentPhrase = (currentPhrase - 1 + PHRASES.length) % PHRASES.length; loadPhrase(); }
+function speakPhrase() {
+  var p = PHRASES[currentPhrase];
+  var text = p.phrase + '. ' + p.meaning;
+  var u = new SpeechSynthesisUtterance(text);
+  u.lang = 'en-GB'; u.rate = 0.65;
+  var voices = window.speechSynthesis.getVoices();
+  var v = voices.find(function(x) { return x.lang === 'en-GB'; }) || voices.find(function(x) { return x.lang.startsWith('en'); });
+  if (v) u.voice = v;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+function loadStory() {
+  var s = STORIES[currentStory];
+  document.getElementById('storyTitle').textContent = s.title;
+  document.getElementById('storyBody').innerHTML = s.body.replace(/\n/g, '<br><br>');
+  document.getElementById('storyCounter').textContent = (currentStory + 1) + ' / ' + STORIES.length;
+}
+function nextStory() { currentStory = (currentStory + 1) % STORIES.length; loadStory(); }
+function prevStory() { currentStory = (currentStory - 1 + STORIES.length) % STORIES.length; loadStory(); }
+function speakStory() {
+  var s = STORIES[currentStory];
+  var plain = s.body.replace(/<[^>]+>/g, '').replace(/\n/g, ' ');
+  var u = new SpeechSynthesisUtterance(s.title.replace(/[^\w\s]/g, '') + '. ' + plain);
+  u.lang = 'en-GB'; u.rate = 0.65;
+  var voices = window.speechSynthesis.getVoices();
+  var v = voices.find(function(x) { return x.lang === 'en-GB'; }) || voices.find(function(x) { return x.lang.startsWith('en'); });
+  if (v) u.voice = v;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+function loadQuiz() {
+  quizAnswered = false;
+  document.getElementById('quizNextBtn').style.display = 'none';
+  document.getElementById('quizResult').style.display = 'none';
+  var q = QUIZ[currentQuiz];
+  document.getElementById('quizQuestion').textContent = q.q;
+  document.getElementById('quizTotal').textContent = QUIZ.length;
+  document.getElementById('quizScore').textContent = quizScore;
+  var opts = document.getElementById('quizOptions');
+  opts.innerHTML = q.options.map(function(o, i) {
+    return '<button class="quiz-option" onclick="answerQuiz(' + i + ')">' + o + '</button>';
+  }).join('');
+}
+function answerQuiz(idx) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  var q = QUIZ[currentQuiz];
+  var btns = document.querySelectorAll('.quiz-option');
+  btns.forEach(function(b, i) {
+    if (i === q.answer) b.classList.add('correct');
+    else if (i === idx && idx !== q.answer) b.classList.add('wrong');
+    b.disabled = true;
+  });
+  var result = document.getElementById('quizResult');
+  result.style.display = 'block';
+  if (idx === q.answer) {
+    quizScore++;
+    result.className = 'quiz-result correct';
+    result.textContent = '🌟 Correct! Well done, Thea!';
+    confetti(20);
+  } else {
+    result.className = 'quiz-result wrong';
+    result.textContent = '💪 Not quite! The answer is: ' + q.options[q.answer];
+  }
+  document.getElementById('quizScore').textContent = quizScore;
+  document.getElementById('quizNextBtn').style.display = 'block';
+}
+function nextQuiz() {
+  currentQuiz = (currentQuiz + 1) % QUIZ.length;
+  loadQuiz();
+}
+
+
+// ===== CHINESE (ZH) MODE =====
+var currentLang = 'EN';
+
+const ZH_WEEKS = [
+  {
+    name: '《我不怕打针》',
+    lang: 'zh-CN',
+    words: ['痛','课室','吃药','打针','闭眼','戴眼镜','伸出手','视力变差','骗','结束','继续','闷闷不乐','建议','胆小'],
+    pinyin: ['tòng','kè shì','chī yào','dǎ zhēn','bì yǎn','dài yǎn jìng','shēn chū shǒu','shì lì biàn chā','piàn','jié shù','jì xù','mèn mèn bù lè','jiàn yì','dǎn xiǎo'],
+    sentence: '懊悔像小虫子一样，一点一点地咬着他的心，使他浑身不自在。',
+    sentencePinyin: 'àohuǐ xiàng xiǎo chóngzi yīyàng, yī diǎn yī diǎn de yǎo zhe tā de xīn, shǐ tā húnshēn bù zìzài.',
+    writingPrompt: '用「胆小」或「建议」造一个句子。例如：他太胆小了，不敢去打针。'
+  },
+  {
+    name: '《我要参加什么活动呢》',
+    lang: 'zh-CN',
+    words: ['久','功夫','辛苦','欢迎','童子军','华乐团','身体健康','加紧训练','鼓励','许多','丰富','所以','幸运','分享'],
+    pinyin: ['jiǔ','gōng fu','xīn kǔ','huān yíng','tóng zǐ jūn','huá yuè tuán','shēn tǐ jiàn kāng','jiā jǐn xùn liàn','gǔ lì','xǔ duō','fēng fù','suǒ yǐ','xìng yùn','fēn xiǎng'],
+    sentence: '小强装模作样地捧着一本书，眼睛却偷偷地瞄着老爷爷。',
+    sentencePinyin: 'Xiǎoqiáng zhuāng mú zuò yàng de pěng zhe yī běn shū, yǎnjīng què tōutōu de miáo zhe lǎoyéye.',
+    writingPrompt: '用「鼓励」或「幸运」造一个句子。例如：妈妈鼓励我要加紧训练，不要放弃。'
+  },
+  {
+    name: '《他的脸红了》',
+    lang: 'zh-CN',
+    words: ['人群','车厢','乘客','企鹅馆','摇摆','不许乱抢','道歉','劝告','拼命','批评','秩序','耐心'],
+    pinyin: ['rén qún','chē xiāng','chéng kè','qǐ é guǎn','yáo bǎi','bù xǔ luàn qiǎng','dào qiàn','quàn gào','pīn mìng','pī píng','zhì xù','nài xīn'],
+    sentence: '听了小弟弟的话，小强觉得脸上热辣辣的，心里像有千万只蚂蚁爬过，羞愧得无地自容。',
+    sentencePinyin: 'Tīng le xiǎo dìdi de huà, Xiǎoqiáng juéde liǎn shàng rè là là de, xīnlǐ xiàng yǒu qiānwàn zhī mǎyǐ pá guò, xiūkuì de wú dì zì róng.',
+    writingPrompt: '用「道歉」或「耐心」造一个句子。例如：他鼓起勇气向同学道歉，心里轻松多了。'
+  },
+  {
+    name: '《马路如虎口》',
+    lang: 'zh-CN',
+    words: ['车祸','司机','出血','医院','一辆汽车','被困车里','顺利','另外','了解','表扬','交通规则','见义勇为'],
+    pinyin: ['chē huò','sī jī','chū xiě','yī yuàn','yī liàng qì chē','bèi kùn chē lǐ','shùn lì','lìng wài','liǎo jiě','biǎo yáng','jiāo tōng guī zé','jiàn yì yǒng wéi'],
+    sentence: '文光双手叉腰，一脸不耐烦地说："你难道不能快点吗？"',
+    sentencePinyin: 'Wénguāng shuāng shǒu chā yāo, yī liǎn bù nàifán de shuō: "Nǐ nándào bù néng kuài diǎn ma?"',
+    writingPrompt: '用「交通规则」或「见义勇为」造一个句子。例如：我们要遵守交通规则，过马路时要看左右。'
+  },
+  {
+    name: '《爱心无障碍》',
+    lang: 'zh-CN',
+    words: ['组屋','熟食中心','居民','饮料','糖果','炸鸡','告示牌','有爱心','遍','而是','指着','清楚','讨厌','其中'],
+    pinyin: ['zǔ wū','shú shí zhōng xīn','jū mín','yǐn liào','táng guǒ','zhá jī','gào shì pái','yǒu ài xīn','biàn','ér shì','zhǐ zhe','qīng chǔ','tǎo yàn','qí zhōng'],
+    sentence: '文光听了，不禁哑口无言，头渐渐地低了下去，双手使劲地拧着衣摆，轻轻地吐出了三个字："对不起！"',
+    sentencePinyin: 'Wénguāng tīng le, bùjīn yǎkǒu wúyán, tóu jiànjiàn de dī le xià qù, shuāng shǒu shǐjìn de nǐng zhe yī bǎi, qīngqīng de tǔ chū le sān gè zì: "Duìbuqǐ!"',
+    writingPrompt: '用「有爱心」或「清楚」造一个句子。例如：她非常有爱心，常常帮助邻居的老人家。'
+  }
+];
+
+var currentZHWeekIdx = 0;
+var currentZHWordIdx = 0;
+var zhResults = [];
+var isZHMode = false;
+
+function switchLang(lang) {
+  currentLang = lang;
+  document.getElementById('langTabEN').classList.toggle('active', lang === 'EN');
+  document.getElementById('langTabZH').classList.toggle('active', lang === 'ZH');
+  document.getElementById('headerSub').textContent = lang === 'EN'
+    ? 'Maha Bodhi School · P4 2026 · British English'
+    : '菩提学校 · P4CL1 · 华文听写';
+
+  // Hide all screens
+  document.getElementById('week-select-screen').style.display = 'none';
+  document.getElementById('zh-week-select-screen').style.display = 'none';
+  document.getElementById('practice-screen').style.display = 'none';
+  document.getElementById('end-screen').style.display = 'none';
+  document.getElementById('learn-screen').style.display = 'none';
+
+  if (lang === 'EN') {
+    document.getElementById('week-select-screen').style.display = 'block';
+    var ebookSec = document.querySelector('.ebook-section');
+    if (ebookSec) ebookSec.style.display = 'block';
+  } else {
+    document.getElementById('zh-week-select-screen').style.display = 'block';
+    var ebookSec = document.querySelector('.ebook-section');
+    if (ebookSec) ebookSec.style.display = 'none';
+  }
+}
+
+function startZHWeek(idx) {
+  isZHMode = true;
+  currentZHWeekIdx = idx;
+  currentZHWordIdx = 0;
+  zhResults = [];
+
+  document.getElementById('zh-week-select-screen').style.display = 'none';
+  var ps = document.getElementById('practice-screen');
+  ps.style.display = 'flex';
+
+  loadZHWord();
+}
+
+function loadZHWord() {
+  var week = ZH_WEEKS[currentZHWeekIdx];
+  var total = week.words.length + 1; // +1 for sentence
+  var idx = currentZHWordIdx;
+
+  var input = document.getElementById('spellingInput');
+  input.value = '';
+  input.className = 'spelling-input';
+  input.disabled = false;
+  input.style.fontSize = idx < week.words.length ? '1.8rem' : '1rem';
+  input.style.letterSpacing = idx < week.words.length ? '3px' : 'normal';
+
+  document.getElementById('resultBanner').style.display = 'none';
+  document.getElementById('nextBtn').classList.remove('visible');
+  document.getElementById('submitBtn').style.display = '';
+  document.getElementById('submitBtn').disabled = false;
+  document.getElementById('writingSection').style.display = 'none';
+
+  var hearBtn = document.getElementById('hearBtn');
+  hearBtn.classList.remove('speaking');
+  document.getElementById('hearBtnText').textContent = '听一听';
+  isSpeaking = false;
+
+  // Reset recording
+  recordedBlob = null; audioURL = null;
+  document.getElementById('playBtn').classList.remove('visible');
+  var recBtn = document.getElementById('recordBtn');
+  recBtn.classList.remove('recording');
+  document.getElementById('recordIcon').textContent = '⏺';
+  document.getElementById('recordText').textContent = '录音';
+
+  var pct = (idx / total) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = (idx + 1) + ' / ' + total;
+
+  var pinyinDisplay = document.getElementById('pinyinDisplay');
+  var pinyinText = document.getElementById('pinyinText');
+  var typeLabel = document.getElementById('typeLabel');
+
+  if (idx < week.words.length) {
+    document.getElementById('wordNumber').textContent = '第' + (idx + 1) + '词，共' + total + '题';
+    document.getElementById('hearBtnText').textContent = '听词语';
+    // Show pinyin
+    pinyinDisplay.style.display = 'block';
+    pinyinText.textContent = week.pinyin[idx];
+    // Handwriting mode for single words
+    input.className = 'spelling-input zh-mode';
+    input.inputMode = 'text';
+    input.setAttribute('inputmode', 'text');
+    input.lang = 'zh-CN';
+    input.placeholder = '用手写输入…';
+    typeLabel.textContent = '✍️ 写出这个词';
+    typeLabel.className = 'type-label-zh';
+  } else {
+    document.getElementById('wordNumber').textContent = '默写句子（第' + total + '题）';
+    document.getElementById('hearBtnText').textContent = '听句子';
+    // Show sentence pinyin
+    pinyinDisplay.style.display = 'block';
+    pinyinText.textContent = week.sentencePinyin;
+    pinyinText.style.fontSize = '0.75rem';
+    pinyinText.style.letterSpacing = '0.5px';
+    // Handwriting/text mode for sentence
+    input.className = 'spelling-input zh-sentence';
+    input.inputMode = 'text';
+    input.setAttribute('inputmode', 'text');
+    input.lang = 'zh-CN';
+    input.placeholder = '在这里写出默写句子…';
+    typeLabel.textContent = '✍️ 默写句子';
+    typeLabel.className = 'type-label-zh';
+  }
+
+  // Show screenshot capture section in ZH mode
+  showScreenshotSection(true);
+  // Clear previous canvas
+  var canvas = document.getElementById('hwCanvas');
+  if (canvas) {
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  var saveBtn = document.getElementById('saveHwBtn');
+  if (saveBtn) saveBtn.remove();
+
+  setTimeout(function() { speakZHWord(); }, 500);
+  input.focus();
+}
+
+function speakZHWord() {
+  var week = ZH_WEEKS[currentZHWeekIdx];
+  var text = currentZHWordIdx < week.words.length
+    ? week.words[currentZHWordIdx]
+    : week.sentence;
+
+  if (isSpeaking) return;
+  var u = new SpeechSynthesisUtterance(text);
+  u.lang = 'zh-CN';
+  u.rate = 0.75;
+  u.pitch = 1.0;
+
+  var voices = window.speechSynthesis.getVoices();
+  var v = voices.find(function(x) { return x.lang === 'zh-CN'; })
+        || voices.find(function(x) { return x.lang.startsWith('zh'); });
+  if (v) u.voice = v;
+
+  var btn = document.getElementById('hearBtn');
+  isSpeaking = true;
+  btn.classList.add('speaking');
+
+  u.onend = function() { isSpeaking = false; btn.classList.remove('speaking'); document.getElementById('hearBtnText').textContent = '再听一次'; };
+  u.onerror = function() { isSpeaking = false; btn.classList.remove('speaking'); };
+
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(u);
+}
+
+function checkZHAnswer() {
+  var week = ZH_WEEKS[currentZHWeekIdx];
+  var isSentence = currentZHWordIdx >= week.words.length;
+  var correct = isSentence ? week.sentence.trim() : week.words[currentZHWordIdx].trim();
+  var input = document.getElementById('spellingInput');
+  var typed = input.value.trim();
+  if (!typed) { input.focus(); return; }
+
+  // For sentences, do a loose match (ignore punctuation differences)
+  var isCorrect;
+  if (isSentence) {
+    var normalize = function(s) { return s.replace(/[，。！？""''：；、\s]/g, ''); };
+    isCorrect = normalize(typed) === normalize(correct);
+  } else {
+    isCorrect = typed === correct;
+  }
+
+  zhResults.push({ word: correct, typed: typed, isCorrect: isCorrect });
+  if (isCorrect) { totalStars++; totalCorrect++; }
+  document.getElementById('totalStars').textContent = totalStars;
+  document.getElementById('totalCorrect').textContent = totalCorrect;
+
+  input.className = 'spelling-input ' + (isCorrect ? 'correct' : 'wrong');
+  input.disabled = true;
+
+  var banner = document.getElementById('resultBanner');
+  banner.className = 'result-banner ' + (isCorrect ? 'correct' : 'wrong');
+  banner.style.display = 'block';
+  document.getElementById('resultEmoji').textContent = isCorrect ? '🌟 答对了！' : '💪 再接再厉！';
+  document.getElementById('resultMsg').textContent = isCorrect ? '写得非常好！' : '正确答案是：';
+  document.getElementById('correctWordDisplay').textContent = isCorrect ? '' : correct;
+
+  document.getElementById('submitBtn').style.display = 'none';
+
+  var total = week.words.length + 1;
+  var isLast = currentZHWordIdx + 1 >= total;
+  var nextBtn = document.getElementById('nextBtn');
+  nextBtn.textContent = isLast ? '查看成绩 🏆' : '下一题 →';
+  nextBtn.classList.add('visible');
+
+  if (isLast) {
+    document.getElementById('writingPrompt').textContent = week.writingPrompt;
+    document.getElementById('writingArea').value = '';
+    document.getElementById('writingSection').style.display = 'block';
+  }
+
+  if (isCorrect) confetti(20);
+}
+
+function nextZHWord() {
+  var week = ZH_WEEKS[currentZHWeekIdx];
+  var total = week.words.length + 1;
+  if (currentZHWordIdx + 1 < total) {
+    currentZHWordIdx++;
+    loadZHWord();
+  } else {
+    showZHEnd();
+  }
+}
+
+function showZHEnd() {
+  document.getElementById('practice-screen').style.display = 'none';
+  var end = document.getElementById('end-screen');
+  end.style.display = 'flex';
+
+  var correct = zhResults.filter(function(r) { return r.isCorrect; }).length;
+  var total = zhResults.length;
+  var pct = correct / total;
+
+  var trophy = '🏅', title = '继续努力，Thea！';
+  if (pct === 1) { trophy = '🏆'; title = '全对！太棒了！🎉'; }
+  else if (pct >= 0.8) { trophy = '🥇'; title = '非常好，Thea！'; }
+  else if (pct >= 0.6) { trophy = '🥈'; title = '做得不错，Thea！'; }
+
+  document.getElementById('endTrophy').textContent = trophy;
+  document.getElementById('endTitle').textContent = title;
+  document.getElementById('endScore').textContent = '你答对了 ' + correct + ' 题，共 ' + total + ' 题！';
+  document.getElementById('endStars').textContent = '⭐'.repeat(correct) + (pct < 1 ? '☆'.repeat(total - correct) : '');
+
+  var wrong = zhResults.filter(function(r) { return !r.isCorrect; });
+  var reviewList = document.getElementById('reviewList');
+  if (wrong.length === 0) {
+    reviewList.style.display = 'none';
+  } else {
+    reviewList.style.display = 'block';
+    reviewList.innerHTML = '<h3>🔴 要多练习这些词</h3>' + wrong.map(function(r) {
+      return '<div class="review-item"><span class="ri-badge">❌</span><div><div class="ri-word">' + r.word + '</div><div style="font-size:0.75rem;color:#aaa;font-weight:700;">你写了：' + r.typed + '</div></div></div>';
+    }).join('');
+  }
+  if (pct === 1) confetti(60);
+}
+
+
+// ===== HANDWRITING SCREENSHOT =====
+
+function showScreenshotSection(show) {
+  var ss = document.getElementById('screenshotSection');
+  if (ss) ss.style.display = show ? 'block' : 'none';
+}
+
+function captureHandwriting() {
+  var input = document.getElementById('spellingInput');
+  var canvas = document.getElementById('hwCanvas');
+  var ctx = canvas.getContext('2d');
+
+  // Set canvas size to match input
+  var rect = input.getBoundingClientRect();
+  var dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = rect.height + 'px';
+  ctx.scale(dpr, dpr);
+
+  // White background
+  ctx.fillStyle = '#f4f8ff';
+  ctx.fillRect(0, 0, rect.width, rect.height);
+
+  // Draw border
+  ctx.strokeStyle = '#9775fa';
+  ctx.lineWidth = 2;
+  ctx.roundRect ? ctx.roundRect(2, 2, rect.width - 4, rect.height - 4, 12)
+                : ctx.rect(2, 2, rect.width - 4, rect.height - 4);
+  ctx.stroke();
+
+  // Draw text
+  var isSentence = input.classList.contains('zh-sentence');
+  ctx.fillStyle = '#1a3a5c';
+  ctx.textAlign = isSentence ? 'left' : 'center';
+
+  if (isSentence) {
+    ctx.font = 'bold ' + Math.round(rect.height * 0.12) + 'px STKaiti, KaiTi, serif';
+    // Wrap text
+    var text = input.value || '（未输入）';
+    var maxWidth = rect.width - 32;
+    var lineHeight = rect.height * 0.16;
+    var words = text.split('');
+    var line = '';
+    var y = 40;
+    for (var i = 0; i < words.length; i++) {
+      var testLine = line + words[i];
+      if (ctx.measureText(testLine).width > maxWidth && line !== '') {
+        ctx.fillText(line, 16, y);
+        line = words[i];
+        y += lineHeight;
+      } else {
+        line = testLine;
+      }
+    }
+    if (line) ctx.fillText(line, 16, y);
+  } else {
+    ctx.font = 'bold ' + Math.round(rect.height * 0.35) + 'px STKaiti, KaiTi, serif';
+    ctx.fillText(input.value || '（未输入）', rect.width / 2, rect.height * 0.62);
+  }
+
+  // Add timestamp label
+  var now = new Date();
+  var ts = now.getFullYear() + '/' + (now.getMonth()+1) + '/' + now.getDate()
+         + ' ' + now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0');
+  ctx.font = '500 11px Nunito, sans-serif';
+  ctx.fillStyle = '#aaa';
+  ctx.textAlign = 'right';
+  ctx.fillText('Thea · ' + ts, rect.width - 8, rect.height - 6);
+
+  // Save to gallery option - create download link
+  var saveBtn = document.getElementById('saveHwBtn');
+  if (!saveBtn) {
+    saveBtn = document.createElement('a');
+    saveBtn.id = 'saveHwBtn';
+    saveBtn.style.cssText = 'display:inline-block;margin-top:8px;font-size:0.78rem;font-weight:800;color:var(--lavender);text-decoration:underline;cursor:pointer;';
+    saveBtn.textContent = '⬇️ Save image';
+    document.getElementById('screenshotSection').appendChild(saveBtn);
+  }
+  saveBtn.href = canvas.toDataURL('image/png');
+  saveBtn.download = 'thea-hw-' + Date.now() + '.png';
+}
+
+// Show/hide screenshot section when entering/leaving ZH mode
+var _origLoadZHWord = loadZHWord;
+
+</script>
+
+<!-- Read & Learn screen -->
+<div id="learn-screen" style="display:none; position:relative; z-index:10; width:100%; max-width:520px; padding:10px 16px 40px; flex-direction:column; align-items:center;">
+  <button class="back-btn" onclick="goHome()">← Back to home</button>
+
+  <!-- Tab bar -->
+  <div class="learn-tabs">
+    <button class="learn-tab active" id="tab-phrases" onclick="switchLearnTab('phrases')">✨ Phrases</button>
+    <button class="learn-tab" id="tab-stories" onclick="switchLearnTab('stories')">🏅 Stories</button>
+    <button class="learn-tab" id="tab-quiz" onclick="switchLearnTab('quiz')">🎯 Quiz</button>
+  </div>
+
+  <!-- Phrases tab -->
+  <div id="learn-phrases" class="learn-panel">
+    <div class="phrase-card" id="phraseCard">
+      <div class="phrase-category" id="phraseCategory">😠 ANGER</div>
+      <div class="phrase-main" id="phraseMain">"His blood boiled with fury."</div>
+      <div class="phrase-meaning-label">What it means:</div>
+      <div class="phrase-meaning" id="phraseMeaning">He was extremely angry — like his blood was so hot it was boiling inside him.</div>
+      <div class="phrase-use-label">Use it when:</div>
+      <div class="phrase-use" id="phraseUse">A character loses their temper completely.</div>
+    </div>
+    <div class="phrase-nav">
+      <button class="phrase-btn" onclick="prevPhrase()">← Prev</button>
+      <div class="phrase-counter" id="phraseCounter">1 / 20</div>
+      <button class="phrase-btn" onclick="nextPhrase()">Next →</button>
+    </div>
+    <button class="hear-btn" style="margin-top:10px; width:100%; justify-content:center;" onclick="speakPhrase()">🔊 Hear it in British English</button>
+  </div>
+
+  <!-- Stories tab -->
+  <div id="learn-stories" class="learn-panel" style="display:none">
+    <div class="story-card" id="storyCard">
+      <div class="story-title" id="storyTitle">🌟 The Big Race</div>
+      <div class="story-body" id="storyBody"></div>
+    </div>
+    <div class="phrase-nav">
+      <button class="phrase-btn" onclick="prevStory()">← Prev</button>
+      <div class="phrase-counter" id="storyCounter">1 / 3</div>
+      <button class="phrase-btn" onclick="nextStory()">Next →</button>
+    </div>
+    <button class="hear-btn" style="margin-top:10px; width:100%; justify-content:center;" onclick="speakStory()">🔊 Read aloud to me</button>
+  </div>
+
+  <!-- Quiz tab -->
+  <div id="learn-quiz" class="learn-panel" style="display:none">
+    <div class="quiz-card" id="quizCard">
+      <div class="quiz-q-label">Which phrase fits best? 🤔</div>
+      <div class="quiz-question" id="quizQuestion"></div>
+      <div class="quiz-options" id="quizOptions"></div>
+      <div class="quiz-result" id="quizResult" style="display:none"></div>
+    </div>
+    <div class="quiz-score-row">⭐ Quiz score: <span id="quizScore">0</span> / <span id="quizTotal">0</span></div>
+    <button class="next-btn visible" style="margin-top:12px;" id="quizNextBtn" onclick="nextQuiz()">Next question →</button>
+  </div>
+</div>
+</body>
+</html>
